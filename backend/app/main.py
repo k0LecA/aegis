@@ -5,6 +5,8 @@ from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from contextlib import asynccontextmanager
 
+file = open("camsource.txt", "r")
+camsource=file.read()
 
 class CameraSystem:
     def __init__(self):
@@ -12,17 +14,20 @@ class CameraSystem:
         self.thread = None
         self.current_frame = None
 
-        self.camera_source = "rtsp://localhost:8554/test"
+        self.camera_source = camsource
 
     def capture_loop(self):
         cap = cv2.VideoCapture(self.camera_source)
         print("[AEGIS] Optical sensors initialized.")
+        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         
         while not self.stop_event.is_set():
             success, frame = cap.read()
             if success:
 
-                _, buffer = cv2.imencode('.jpg', frame)
+                _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
                 self.current_frame = buffer.tobytes()
             else:
                 print("[AEGIS] Warning: Connection lost. Retrying...")
@@ -40,7 +45,7 @@ async def lifespan(app: FastAPI):
     yield
     print("[AEGIS] Shutting down. Waiting for background tasks...")
     aegis.stop_event.set()
-    aegis.thread.join()
+    aegis.thread.join(timeout=2.0)
     print("[AEGIS] Goodbye, testing candidate.")
 
 app = FastAPI(lifespan=lifespan)
@@ -52,8 +57,7 @@ async def root():
     return {"status": "Online", "system": "AEGIS"}
 
 def frame_generator():
-    """Генератор, который FastAPI будет 'стримить' в браузер"""
-    while True:
+    while not aegis.stop_event.is_set():
         if aegis.current_frame:
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + aegis.current_frame + b'\r\n')
