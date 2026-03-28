@@ -1,1 +1,16 @@
 app/camsource.txt
+camsource.txt
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Project specific
+.pytest_cache/
+.coverage
