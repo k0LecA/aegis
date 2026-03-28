@@ -81,15 +81,6 @@ npm run dev
 
 -----
 
-## 🍰 Hidden Protocols (Easter Eggs)
-
-The system contains several "Deep Storage" protocols for authorized personnel:
-
-  * **The Cake Protocol:** Accessing `GET /api/v1/cake` will return a `404 Not Found`. *Observation: The cake remains a lie.*
-  * **Maintenance Mode:** Check the browser console. AEGIS might have a message regarding the current state of the facility.
-  * **Intrusion Alerts:** System logs use Aperture Science terminology for camera disconnections.
-
------
 
 ## 📈 Roadmap
 
