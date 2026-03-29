@@ -4,6 +4,7 @@ import cv2
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from contextlib import asynccontextmanager
+import os
 
 file = open("camsource.txt", "r")
 camsource=file.read()
@@ -17,17 +18,24 @@ class CameraSystem:
         self.camera_source = camsource
 
     def capture_loop(self):
+        #os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
         cap = cv2.VideoCapture(self.camera_source)
+        #cap = cv2.VideoCapture(self.camera_source, cv2.CAP_FFMPEG)
         print("[AEGIS] Optical sensors initialized.")
+
+        #show latest frame (some frame loss)
         cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+        
+        #ask server for this
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         
         while not self.stop_event.is_set():
             success, frame = cap.read()
             if success:
-
-                _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
+                #resize
+                small_frame = cv2.resize(frame, (190, 60), interpolation=cv2.INTER_AREA)
+                _, buffer = cv2.imencode('.jpg', small_frame, [cv2.IMWRITE_JPEG_QUALITY, 20])
                 self.current_frame = buffer.tobytes()
             else:
                 print("[AEGIS] Warning: Connection lost. Retrying...")
