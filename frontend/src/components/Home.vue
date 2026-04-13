@@ -1,18 +1,10 @@
 <script setup lang="ts">
-  const streamUrl = "http://127.0.0.1:8000/video_feed";
+  import Camera  from './Camera.vue';
 </script>
 
 <template>
   <section id="center">
-    <img :src="streamUrl" alt="AEGIS Live Feed" class="camera-stream" />
+    <Camera/>
+    <Camera/>
   </section>
 </template>
-
-<style scoped>
-  .camera-stream {
-    border: 2px solid #555;
-    border-radius: 4px;
-    width: 100%;
-    max-width: 800px;
-  }
-</style>
