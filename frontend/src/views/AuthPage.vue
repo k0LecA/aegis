@@ -1,50 +1,57 @@
 <template>
-  <div class="aperture-container">
-    <div class="login-box">
-      <div class="logo">
-        <div class="aperture-circle"></div>
-        <h1>APERTURE <span class="thin">SCIENCE</span></h1>
+  <div class="auth-container">
+    <div class="auth-box">
+      <div class="auth-header">
+        <div class="auth-logo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <div class="logo-text">
+            <h1>AEGIS <span class="dim">SECURE</span></h1>
+            <p>TERMINAL_ACCESS_POINT</p>
+          </div>
+        </div>
+        <div class="auth-divider"></div>
       </div>
 
-      <div class="form-header">
-        <p>Laboratories Personnel Portal</p>
-        <div class="divider"></div>
-      </div>
-
-      <form @submit.prevent="handleLogin">
-        <div class="input-group">
-          <label for="id">SUBJECT ID</label>
+      <form @submit.prevent="handleLogin" class="auth-form">
+        <div class="auth-input-group">
+          <label for="id">OPERATOR_ID</label>
           <input 
             type="text" 
             id="id" 
             v-model="subjectId" 
-            placeholder="[REDACTED]" 
+            placeholder="[ID_0000]" 
+            spellcheck="false"
             required
           />
         </div>
 
-        <div class="input-group">
-          <label for="token">ACCESS TOKEN</label>
+        <div class="auth-input-group">
+          <label for="token">ACCESS_KEY</label>
           <input 
             type="password" 
             id="token" 
             v-model="token" 
-            placeholder="••••••••" 
+            placeholder="********" 
             required
           />
         </div>
 
-        <div v-if="error" class="error-msg">
-          {{ error }}
+        <div v-if="error" class="auth-error">
+          &gt; ERROR: {{ error.toUpperCase() }}
         </div>
 
-        <button type="submit" :disabled="loading">
-          {{ loading ? 'INITIALIZING...' : 'BEGIN TESTING' }}
+        <button type="submit" class="auth-btn" :disabled="loading">
+          {{ loading ? 'ENCRYPTING...' : 'INITIALIZE_AUTH' }}
         </button>
       </form>
 
-      <div class="footer-note">
-        "We do what we must because we can."
+      <div class="auth-footer">
+        <div class="status-box">
+          <span class="status-dot"></span>
+          <span>NODE_CONNECTED: 2.152.0.1</span>
+        </div>
       </div>
     </div>
   </div>
@@ -89,143 +96,163 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
-
-.aperture-container {
+.auth-container {
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f0f0f0;
-  font-family: 'Roboto', sans-serif;
-  color: #333;
+  background-color: var(--s-bg);
+  font-family: var(--font-mono);
+  color: var(--s-white);
 }
 
-.login-box {
-  width: 350px;
-  background: white;
-  padding: 40px;
-  border: 1px solid #ccc;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+.auth-box {
+  width: 400px;
+  background: var(--s-bg2);
+  padding: 48px;
+  border: 1px solid var(--s-line);
+  border-bottom: 2px solid var(--s-line2);
 }
 
-.logo {
-  text-align: center;
-  margin-bottom: 30px;
+.auth-header {
+  margin-bottom: 40px;
 }
 
-.aperture-circle {
-  width: 60px;
-  height: 60px;
-  border: 8px solid #333;
-  border-radius: 50%;
-  margin: 0 auto 10px;
-  position: relative;
-  /* Simple CSS representation of the aperture blades */
-  background: conic-gradient(
-    from 0deg,
-    #fff 0deg 45deg,
-    #333 45deg 46deg,
-    #fff 46deg 90deg,
-    #333 90deg 91deg,
-    #fff 91deg 135deg,
-    #333 135deg 136deg,
-    #fff 136deg 180deg,
-    #333 180deg 181deg,
-    #fff 181deg 225deg,
-    #333 225deg 226deg,
-    #fff 226deg 270deg,
-    #333 270deg 271deg,
-    #fff 271deg 315deg,
-    #333 315deg 316deg,
-    #fff 316deg 360deg
-  );
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--s-white);
 }
 
-h1 {
-  font-size: 1.2rem;
-  letter-spacing: 2px;
+.logo-text h1 {
+  font-size: 1.25rem;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: 0.1em;
   margin: 0;
+  line-height: 1;
 }
 
-.thin { font-weight: 300; }
-
-.form-header {
-  margin-bottom: 25px;
+.logo-text h1 .dim {
+  color: var(--s-dim);
+  font-weight: 400;
 }
 
-.form-header p {
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-  color: #666;
+.logo-text p {
+  font-size: 10px;
+  color: var(--s-dim);
+  margin-top: 4px;
+  letter-spacing: 0.2em;
 }
 
-.divider {
-  height: 4px;
-  background-color: #ff9d00; /* Aperture Orange */
+.auth-divider {
+  height: 1px;
+  background: var(--s-line);
+  margin-top: 24px;
+  position: relative;
+}
+
+.auth-divider::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 40px;
+  height: 1px;
+  background: var(--s-line2);
 }
 
-.input-group {
-  margin-bottom: 20px;
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-label {
-  display: block;
-  font-size: 0.7rem;
-  font-weight: 700;
-  margin-bottom: 5px;
+.auth-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-input {
-  width: 100%;
-  padding: 10px;
-  border: 2px solid #ddd;
-  background-color: #fcfcfc;
-  font-family: monospace;
-  box-sizing: border-box;
-  outline: none;
-  transition: border-color 0.2s;
+.auth-input-group label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--s-mid);
+  letter-spacing: 0.1em;
 }
 
-input:focus {
-  border-color: #0094ff; /* Aperture Blue */
-}
-
-button {
+.auth-input-group input {
   width: 100%;
   padding: 12px;
-  background-color: #333;
-  color: white;
-  border: none;
-  font-weight: 700;
+  background: var(--s-bg);
+  border: 1px solid var(--s-line);
+  color: var(--s-white);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.auth-input-group input:focus {
+  border-color: var(--s-mid);
+  background: var(--s-bg3);
+}
+
+.auth-input-group input::placeholder {
+  color: var(--s-dim);
+}
+
+.auth-error {
+  color: var(--s-err);
+  font-size: 11px;
+  padding: 8px;
+  border-left: 2px solid var(--s-err);
+  background: rgba(122, 58, 58, 0.05);
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--s-bg4);
+  border: 1px solid var(--s-line2);
+  color: var(--s-white);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  letter-spacing: 1px;
-  transition: background-color 0.2s;
+  letter-spacing: 0.1em;
+  transition: all 0.2s ease;
 }
 
-button:hover {
-  background-color: #ff9d00;
+.auth-btn:hover {
+  background: var(--s-bg3);
+  border-color: var(--s-white);
 }
 
-button:disabled {
-  background-color: #ccc;
+.auth-btn:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.error-msg {
-  color: #d00;
-  font-size: 0.75rem;
-  margin-bottom: 15px;
-  font-style: italic;
+.auth-footer {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--s-line);
 }
 
-.footer-note {
-  margin-top: 30px;
-  font-size: 0.7rem;
-  color: #999;
-  text-align: center;
+.status-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  color: var(--s-dim);
+  letter-spacing: 0.1em;
+}
+
+.status-dot {
+  width: 4px;
+  height: 4px;
+  background: var(--s-ok);
 }
 </style>

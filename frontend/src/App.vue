@@ -20,7 +20,7 @@ watch(() => route.path, () => {
 </script>
 
 <template>
-  <div v-if="!isAuthPage" class="flex h-screen w-full bg-[#0f172a] overflow-hidden relative">
+  <div v-if="!isAuthPage" class="flex h-screen w-full bg-[var(--s-bg)] overflow-hidden relative">
     <Transition
       enter-active-class="transition duration-300 ease-out"
       enter-from-class="opacity-0"
@@ -39,7 +39,7 @@ watch(() => route.path, () => {
     <Sidebar :is-open="isSidebarOpen" @toggle="toggleSidebar" />
 
     <main class="flex-1 flex flex-col relative overflow-hidden">
-      <header class="lg:hidden flex items-center justify-between p-4 glass border-b border-white/5 z-30">
+      <header class="lg:hidden flex items-center justify-between p-4 bg-[var(--s-bg2)] border-b border-[var(--s-line2)] z-30">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white">
@@ -50,7 +50,7 @@ watch(() => route.path, () => {
         </div>
         <button 
           @click="toggleSidebar"
-          class="p-2 rounded-xl glass text-white/60 hover:text-white"
+          class="p-2 border border-[var(--s-line)] bg-[var(--s-bg3)] text-[var(--s-mid)] hover:text-[var(--s-white)] hover:bg-[var(--s-bg4)] transition-colors"
         >
           <svg v-if="!isSidebarOpen" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
@@ -61,7 +61,7 @@ watch(() => route.path, () => {
         </button>
       </header>
 
-      <div class="absolute top-[-100px] left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/20 blur-[120px] pointer-events-none"></div>
+      <!-- Global light glow removed for monochrome look -->
       
       <router-view v-slot="{ Component }">
         <Transition 

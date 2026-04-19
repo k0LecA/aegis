@@ -11,53 +11,52 @@ const streamUrl = `http://localhost:8889/mystream?user=${token}`;
 </script>
 
 <template>
-  <div class="flex-1 p-10 overflow-auto bg-slate-900/50">
+  <div class="flex-1 p-10 overflow-auto bg-[var(--s-bg)]">
     <header class="mb-10 flex justify-between items-end">
       <div>
-        <h2 class="text-4xl font-extrabold text-white tracking-tight">Security Overview</h2>
-        <p class="text-white/40 mt-1">Welcome back, Agent. Everything looks secure.</p>
+        <h2 class="text-4xl font-bold text-[var(--s-white)] tracking-tight uppercase font-[var(--font-sans)]">Security Overview</h2>
+        <p class="text-[var(--s-dim)] mt-1 font-terminal text-sm uppercase tracking-wider">Welcome back, Agent. Status: Nominal.</p>
       </div>
-      <div class="glass px-4 py-2 rounded-lg text-sm font-medium text-white/60">
-        Mon, April 13, 2026
+      <div class="border border-[var(--s-line)] bg-[var(--s-bg2)] px-4 py-2 text-xs font-medium text-[var(--s-mid)] font-terminal uppercase">
+        2026.04.13 // 22:48:16
       </div>
     </header>
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-      <div v-for="stat in stats" :key="stat.name" class="glass rounded-3xl p-6 transition-transform hover:scale-[1.02] cursor-default border border-white/5">
+      <div v-for="stat in stats" :key="stat.name" class="s-card p-6 cursor-default">
         <div class="flex justify-between items-start mb-4">
-          <div class="p-3 bg-white/5 rounded-2xl">
-             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+          <div class="p-3 border border-[var(--s-line)] bg-[var(--s-bg3)]">
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--s-white)]">
                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
              </svg>
           </div>
-          <span :class="['text-xs font-bold px-2 py-1 rounded-full', stat.trend.startsWith('+') ? 'bg-accent/10 text-accent' : 'bg-white/5 text-white/40']">
+          <span :class="['text-[10px] font-bold px-2 py-1 font-terminal', stat.trend.startsWith('+') ? 'text-[var(--s-ok)]' : 'text-[var(--s-dim)]']">
             {{ stat.trend }}
           </span>
         </div>
-        <p class="text-sm font-medium text-white/40 mb-1">{{ stat.name }}</p>
-        <p class="text-3xl font-bold text-white">{{ stat.value }}</p>
+        <p class="text-[10px] font-medium text-[var(--s-dim)] mb-1 font-terminal uppercase tracking-wider">{{ stat.name }}</p>
+        <p class="text-3xl font-bold text-[var(--s-white)] font-[var(--font-sans)] uppercase tracking-tight">{{ stat.value }}</p>
       </div>
     </div>
 
     <!-- Live Preview Placeholder -->
-    <div class="glass rounded-[2rem] p-8 border border-white/10 min-h-[400px] flex flex-col">
+    <div class="s-card p-8 min-h-[400px] flex flex-col">
       <div class="flex items-center justify-between mb-8">
-        <h3 class="text-xl font-bold text-white">Live Feed (Priority)</h3>
-        <button class="text-xs font-bold text-primary uppercase tracking-widest hover:text-white transition-colors">View All Streams</button>
+        <h3 class="text-lg font-bold text-[var(--s-white)] uppercase font-[var(--font-sans)] tracking-wider">Live Feed // Secondary Cluster</h3>
+        <button class="text-[10px] font-bold text-[var(--s-mid)] uppercase tracking-widest hover:text-[var(--s-white)] transition-colors font-terminal">Expand _All_Streams</button>
       </div>
-      <div class="flex-1 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center relative overflow-hidden group">
+      <div class="flex-1 bg-[var(--s-bg)] border border-[var(--s-line)] flex items-center justify-center relative overflow-hidden group">
         <iframe 
             :src="streamUrl"
             width="640" 
             height="480" 
             allow="autoplay; fullscreen" 
-            style="border: none;">
+            style="border: none; filter: contrast(1.1) brightness(1.1) grayscale(1);">
         </iframe>
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-           <p class="text-white text-sm font-medium">Main Entrance - Cam 01</p>
+        <div class="absolute inset-0 bg-gradient-to-t from-[var(--s-bg)] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+           <p class="text-[var(--s-white)] text-xs font-medium font-terminal uppercase tracking-widest">Main Entrance - Cam 01</p>
         </div>
-        
       </div>
     </div>
   </div>

@@ -1,19 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap');
+
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #3b82f6;
-  --color-primary-dark: #2563eb;
-  --color-accent: #10b981;
-  --color-bg-dark: #0f172a;
-  --color-sidebar: rgba(15, 23, 42, 0.8);
-  --color-glass: rgba(255, 255, 255, 0.05);
-  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-primary: var(--s-bg4);
+  --color-accent: var(--s-mid);
+  
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: 'IBM Plex Sans Condensed', system-ui, -apple-system, sans-serif;
 }
 
 :root {
-  background-color: var(--color-bg-dark);
-  color: #f8fafc;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  /* Palette */
+  --s-bg: #0d0e0f;
+  --s-bg2: #131416;
+  --s-bg3: #1a1c1e;
+  --s-bg4: #222528;
+  --s-white: #dcddd8;
+  --s-mid: #8a8d8f;
+  --s-dim: #4a4d50;
+  --s-line: rgba(255, 255, 255, 0.07);
+  --s-line2: rgba(255, 255, 255, 0.13);
+  
+  /* Statuses */
+  --s-ok: #5a7a5a;
+  --s-warn: #7a6a3a;
+  --s-err: #7a3a3a;
+
+  background-color: var(--s-bg);
+  color: var(--s-white);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -21,6 +39,7 @@ body {
   display: flex;
   min-height: 100vh;
   overflow: hidden;
+  background-color: var(--s-bg);
 }
 
 #app {
@@ -28,22 +47,44 @@ body {
   display: flex;
 }
 
-.glass {
-  background: var(--color-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-glass-border);
+/* Base Terminal Font utility */
+.font-terminal {
+  font-family: var(--font-mono);
+}
+
+/* Structure without shadows */
+.s-card {
+  background: var(--s-bg2);
+  border: 1px solid var(--s-line);
+  border-bottom: 1px solid var(--s-line2);
+  transition: background 0.2s ease;
+}
+
+.s-card:hover {
+  background: var(--s-bg3);
+}
+
+.s-border {
+  border: 1px solid var(--s-line);
+}
+
+.s-border-accent {
+  border: 1px solid var(--s-line2);
 }
 
 .nav-item {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: var(--font-mono);
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
 }
 
 .nav-item:hover {
-  background: var(--color-glass);
+  background: var(--s-bg2);
+  color: var(--s-white);
 }
 
 .nav-item.active {
-  background: var(--color-primary);
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+  background: var(--s-bg3);
+  border-color: var(--s-line2);
+  color: var(--s-white);
 }

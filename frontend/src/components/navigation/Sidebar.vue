@@ -11,7 +11,7 @@ defineEmits<{
 <template>
   <aside 
     :class="[
-      'fixed inset-y-0 left-0 w-64 glass border-r border-white/10 flex flex-col p-4 z-50 transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0',
+      'fixed inset-y-0 left-0 w-64 bg-[var(--s-bg2)] border-r border-[var(--s-line)] flex flex-col p-4 z-50 transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0',
       isOpen ? 'translate-x-0' : '-translate-x-full'
     ]"
   >
@@ -27,14 +27,14 @@ defineEmits<{
     </button>
 
     <div class="flex items-center gap-3 px-2 mb-10 mt-2">
-      <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+      <div class="w-10 h-10 border border-[var(--s-line2)] bg-[var(--s-bg4)] flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--s-white)]">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
         </svg>
       </div>
       <div>
-        <h1 class="text-xl font-bold tracking-tight text-white leading-tight">AEGIS</h1>
-        <p class="text-[10px] uppercase tracking-[0.2em] text-white/40 font-semibold">Security Hub</p>
+        <h1 class="text-xl font-bold tracking-tight text-[var(--s-white)] leading-tight uppercase font-[var(--font-sans)]">AEGIS</h1>
+        <p class="text-[10px] uppercase tracking-[0.2em] text-[var(--s-dim)] font-medium font-terminal">Security Hub</p>
       </div>
     </div>
 
@@ -42,7 +42,7 @@ defineEmits<{
       <!-- Dashboard -->
       <router-link 
         to="/"
-        class="w-full flex items-center gap-4 px-4 py-3 rounded-xl nav-item group text-white/60 hover:text-white"
+        class="w-full flex items-center gap-4 px-4 py-3 nav-item group text-[var(--s-mid)] hover:text-[var(--s-white)]"
         active-class="active !text-white"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110">
@@ -57,7 +57,7 @@ defineEmits<{
       <!-- Cameras -->
       <router-link 
         to="/cameras"
-        class="w-full flex items-center gap-4 px-4 py-3 rounded-xl nav-item group text-white/60 hover:text-white"
+        class="w-full flex items-center gap-4 px-4 py-3 nav-item group text-[var(--s-mid)] hover:text-[var(--s-white)]"
         active-class="active !text-white"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110">
@@ -70,7 +70,7 @@ defineEmits<{
       <!-- Settings -->
       <router-link 
         to="/settings"
-        class="w-full flex items-center gap-4 px-4 py-3 rounded-xl nav-item group text-white/60 hover:text-white"
+        class="w-full flex items-center gap-4 px-4 py-3 nav-item group text-[var(--s-mid)] hover:text-[var(--s-white)]"
         active-class="active !text-white"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:scale-110">
@@ -81,14 +81,12 @@ defineEmits<{
       </router-link>
     </nav>
 
-    <div class="mt-auto p-4 glass rounded-2xl bg-white/5 border-white/5">
+    <div class="mt-auto p-4 border border-[var(--s-line)] bg-[var(--s-bg)]">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-          <div class="w-2 h-2 rounded-full bg-accent animate-pulse"></div>
-        </div>
-        <div>
-          <p class="text-[11px] font-bold text-white/90">System Online</p>
-          <p class="text-[9px] text-white/40">v0.0.4 unstable obviously</p>
+        <div class="w-2 h-2 bg-[var(--s-ok)]"></div>
+        <div class="font-terminal">
+          <p class="text-[11px] font-medium text-[var(--s-white)] uppercase">System Online</p>
+          <p class="text-[9px] text-[var(--s-dim)]">v0.0.5 secure_build</p>
         </div>
       </div>
     </div>
