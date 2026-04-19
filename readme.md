@@ -34,7 +34,7 @@
 
 -----
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 aegis-system/
@@ -60,7 +60,7 @@ aegis-system/
 
 -----
 
-## 🚦 Quick Start
+## Quick Start
 
 ### 1\. Initialize the Facility (Backend)
 
@@ -81,7 +81,7 @@ npm run dev
 -----
 
 
-## 📈 Roadmap
+## Roadmap
 
   - [x] **WebRTC Integration:** Move from MJPEG/HLS to WebRTC for sub-second latency.
   - [ ] **Motion Detection:** Integrated OpenCV analysis to trigger "Intruder" alerts.
@@ -91,7 +91,7 @@ npm run dev
         
 -----
 
-## 🛡 Disclaimer
+## Disclaimer
 
 *This project is a fan-made tribute to the Portal universe and is intended for educational and portfolio purposes only. Aperture Science, AEGIS, and Portal are trademarks of Valve Corporation.*
 
