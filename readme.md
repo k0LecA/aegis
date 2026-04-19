@@ -1,4 +1,4 @@
-# AEGIS
+# AEGIS: Automated Enclosure Guardian & Interactive System
 
 **AEGIS** is a high-performance web-based surveillance system designed to aggregate, manage, and monitor IP camera feeds. Inspired by the security protocols of the Aperture Science facility, this project bridges the gap between low-level media streaming and modern web interfaces.
 
@@ -6,25 +6,24 @@
 
 -----
 
-## 🚀 Key Features
+## Key Features
 
   * **Multi-Stream Dashboard:** Monitor multiple RTSP/HTTP streams simultaneously with low latency.
   * **Asynchronous Engine:** Powered by FastAPI for non-blocking I/O, essential for high-concurrency video handling.
-  * **Dynamic Configuration:** Add, edit, or group cameras via a clean, reactive UI.
   * **Aperture UI/UX:** A sleek, industrial interface built with Vue 3 and inspired by 1970s brutalist tech aesthetics.
-  * **Security Logs:** Real-time logging of camera statuses and system events.
-
+  * **Low Latency WebRTC:** Sub-second video delivery powered by MediaMTX integration.
+  * **Segmented Recording:** Automatic fMP4 recording.
 -----
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Backend
 
-  * **Python 3.10+** (The core language).
+  * **Python 3.14** (The core language).
+  * **Pipenv:** Modern dependency and virtual environment management.
   * **FastAPI:** High-performance asynchronous framework.
-  * **SQLAlchemy / SQLModel:** Modern ORM for managing the camera database.
-  * **OpenCV & FFmpeg:** For frame capturing and stream transcoding.
-  * **Uvicorn:** Lightning-fast ASGI server implementation.
+  * **MediaMTX:** Cross-platform media server (RTSP/WebRTC/HLS proxy).
+  * **FFmpeg:** Real-time stream transcoding.
 
 ### Frontend
 
@@ -54,7 +53,9 @@ aegis-system/
 │   │   ├── stores/         # Pinia Global State
 │   │   └── views/          # Pages (Dashboard, Settings)
 │   └── package.json
-└── docker-compose.yml       # Production-ready orchestration
+└── recordings/             # Camera recordings
+    ├── 2009-...-67.mp4
+    └── ...
 ```
 
 -----
@@ -65,10 +66,8 @@ aegis-system/
 
 ```bash
 cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+pipenv install
+pipenv run python -m run
 ```
 
 ### 2\. Activate the Terminal (Frontend)
@@ -84,17 +83,16 @@ npm run dev
 
 ## 📈 Roadmap
 
-  - [ ] **WebRTC Integration:** Move from MJPEG/HLS to WebRTC for sub-second latency.
+  - [x] **WebRTC Integration:** Move from MJPEG/HLS to WebRTC for sub-second latency.
   - [ ] **Motion Detection:** Integrated OpenCV analysis to trigger "Intruder" alerts.
   - [ ] **Telegram Bot:** Real-time snapshots sent to your mobile device upon motion.
-  - [ ] **Archiving:** Securely store footage on local or S3 storage.
-
+  - [x] **Archiving:** Securely store footage on local or S3 storage.
+  - [x] **External Auth Bridge:** Secure token-based handshake between Frontend, Core, and Media Server.
+        
 -----
 
 ## 🛡 Disclaimer
 
 *This project is a fan-made tribute to the Portal universe and is intended for educational and portfolio purposes only. Aperture Science, AEGIS, and Portal are trademarks of Valve Corporation.*
 
------
-
-### Would you like me to generate the `app/main.py` file now, including the custom AEGIS startup message in the terminal?
+Note: The cake is a lie, but the security of this facility is not.
