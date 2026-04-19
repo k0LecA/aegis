@@ -6,32 +6,31 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# THIS IS CRITICAL
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # For dev, allow everything. For prod, put your URL.
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"], # This allows POST, OPTIONS, GET, etc.
+    allow_methods=["*"], 
     allow_headers=["*"],
 )
-# Temporary store for subject tokens
+
 active_tokens = set()
 
 class LoginRequest(BaseModel):
     username: str
     password: str
 
-# This model matches the JSON schema in your .yml file comments
 class MTXAuthRequest(BaseModel):
-    user: str
-    password: str
-    token: Optional[str]
-    ip: str
-    action: str
-    path: str
-    protocol: str
-    id: str
-    query: str
+    user: Optional[str] = None
+    password: Optional[str] = None
+    token: Optional[str] = None
+    ip: Optional[str] = None
+    action: Optional[str] = None
+    path: Optional[str] = None
+    protocol: Optional[str] = None
+    id: Optional[str] = None       
+    query: Optional[str] = None
 
 @app.post("/login")
 async def login(req: LoginRequest):
@@ -39,16 +38,23 @@ async def login(req: LoginRequest):
     if req.username == "admin" and req.password == "admin":
         new_token = str(uuid.uuid4())
         active_tokens.add(new_token)
+        print(new_token)
         return {"token": new_token}
     raise HTTPException(status_code=401, detail="Subject identification failed.")
 
 @app.post("/auth_check")
 async def auth_check(auth: MTXAuthRequest):
-    # MediaMTX sends the token/username in the 'user' field 
-    # when you connect via: http://host:8889/stream?user=TOKEN
-    if auth.user in active_tokens:
-        print(f"Personnel {auth.user} authorized for {auth.action} on {auth.path}")
-        return {"status": "ok"} # 200 OK is enough for MediaMTX
+    print("--- NEW AUTH ATTEMPT ---")
+    print(f"Full payload from MTX: {auth.dict()}") # Посмотрим всё
+    print(f"Looking for token: '{auth.query[5:]}'")
+    print(f"Tokens in storage: {active_tokens}")
+
+    # Очищаем токен от возможных пробелов, которые могут затесаться
+    incoming_token = auth.query.strip()[5:] if auth.query[5:] else ""
+
+    if incoming_token in active_tokens:
+        print("RESULT: SUCCESS")
+        return {"status": "ok"}
     
-    print(f"Unauthorized access attempt from IP: {auth.ip}")
+    print("RESULT: FAILED - Token not found in active_tokens")
     raise HTTPException(status_code=403, detail="Unauthorized")

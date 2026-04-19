@@ -7,7 +7,7 @@ const stats = [
 
 const token = localStorage.getItem('user-token');
 
-const streamUrl = `http://localhost:8889/mystream?user=${token}&password=unused`;
+const streamUrl = `http://localhost:8889/mystream?user=${token}`;
 </script>
 
 <template>
@@ -48,7 +48,7 @@ const streamUrl = `http://localhost:8889/mystream?user=${token}&password=unused`
       </div>
       <div class="flex-1 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center relative overflow-hidden group">
         <iframe 
-            src=streamUrl
+            :src="streamUrl"
             width="640" 
             height="480" 
             allow="autoplay; fullscreen" 
