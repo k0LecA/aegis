@@ -1,24 +1,26 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Sidebar from './components/navigation/Sidebar.vue'
 
 const isSidebarOpen = ref(false)
 const route = useRoute()
 
+// Check if we are on the login page
+// You can also use route.meta.hideNavigation if you set that up in your router config
+const isAuthPage = computed(() => route.path === '/login' || route.name === 'Login')
+
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value
 }
 
-// Automatically close sidebar on mobile when navigating
 watch(() => route.path, () => {
   isSidebarOpen.value = false
 })
 </script>
 
 <template>
-  <div class="flex h-screen w-full bg-[#0f172a] overflow-hidden relative">
-    <!-- Backdrop for mobile -->
+  <div v-if="!isAuthPage" class="flex h-screen w-full bg-[#0f172a] overflow-hidden relative">
     <Transition
       enter-active-class="transition duration-300 ease-out"
       enter-from-class="opacity-0"
@@ -34,12 +36,9 @@ watch(() => route.path, () => {
       ></div>
     </Transition>
 
-    <!-- Sidebar -->
     <Sidebar :is-open="isSidebarOpen" @toggle="toggleSidebar" />
 
-    <!-- Main Content -->
     <main class="flex-1 flex flex-col relative overflow-hidden">
-      <!-- Mobile Header -->
       <header class="lg:hidden flex items-center justify-between p-4 glass border-b border-white/5 z-30">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
@@ -62,7 +61,6 @@ watch(() => route.path, () => {
         </button>
       </header>
 
-      <!-- Top Backdrop Glow -->
       <div class="absolute top-[-100px] left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/20 blur-[120px] pointer-events-none"></div>
       
       <router-view v-slot="{ Component }">
@@ -80,31 +78,8 @@ watch(() => route.path, () => {
       </router-view>
     </main>
   </div>
+
+  <div v-else class="h-screen w-full bg-[#f0f0f0]">
+    <router-view />
+  </div>
 </template>
-
-
-<style>
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
-}
-</style>
-
-
-<style>
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
-}
-</style>
-

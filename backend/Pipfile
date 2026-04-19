@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 pynput = "*"
 ffmpeg-python = "*"
+fastapi = "*"
+uvicorn = "*"
 
 [dev-packages]
 

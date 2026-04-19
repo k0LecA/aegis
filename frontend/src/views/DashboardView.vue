@@ -4,6 +4,10 @@ const stats = [
   { name: 'Storage Used', value: '64%', trend: 'Stable', iconPath: 'M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7 M16 5V3 M8 5V3' },
   { name: 'Alerts (24h)', value: '4', trend: '-15%', iconPath: 'M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z M12 9v4 M12 17h.01' },
 ]
+
+const token = localStorage.getItem('user-token');
+
+const streamUrl = `http://localhost:8889/mystream?user=${token}&password=unused`;
 </script>
 
 <template>
@@ -43,16 +47,17 @@ const stats = [
         <button class="text-xs font-bold text-primary uppercase tracking-widest hover:text-white transition-colors">View All Streams</button>
       </div>
       <div class="flex-1 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center relative overflow-hidden group">
+        <iframe 
+            src=streamUrl
+            width="640" 
+            height="480" 
+            allow="autoplay; fullscreen" 
+            style="border: none;">
+        </iframe>
         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
            <p class="text-white text-sm font-medium">Main Entrance - Cam 01</p>
         </div>
-        <div class="flex flex-col items-center gap-4 text-white/20">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 7l-7 5 7 5V7z"/>
-            <rect width="15" height="14" x="1" y="5" rx="2" ry="2"/>
-          </svg>
-          <span class="text-xs font-semibold uppercase tracking-[0.3em]">No Signal Selected</span>
-        </div>
+        
       </div>
     </div>
   </div>
