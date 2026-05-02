@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Optional
 import uuid
 from fastapi.middleware.cors import CORSMiddleware
+from app.routers import router
 
 app = FastAPI()
 
@@ -14,6 +15,8 @@ app.add_middleware(
     allow_methods=["*"], 
     allow_headers=["*"],
 )
+
+app.include_router(router, prefix="/api")
 
 active_tokens = set()
 
