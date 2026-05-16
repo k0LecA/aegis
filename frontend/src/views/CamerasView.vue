@@ -8,7 +8,6 @@ interface Camera {
   status: 'online' | 'offline' | 'warning'
 }
 
-// Initial demo cameras
 const cameras = ref<Camera[]>([])
 
 onMounted(async () => {
@@ -75,12 +74,11 @@ const saveCamera = async () => {
       })
     })
     const created = await res.json()
-    cameras.value.push(created) // используем id от сервера
+    cameras.value.push(created)
     closeModal()
     return
   }
 
-  // обновляем локально для edit
   const index = cameras.value.findIndex(c => c.id === editingCameraId.value)
   if (index !== -1) {
     cameras.value[index] = { ...cameras.value[index], name: newCamera.value.name.toUpperCase(), rtsp_url: newCamera.value.rtsp_url }
