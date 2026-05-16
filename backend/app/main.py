@@ -4,6 +4,8 @@ from typing import Optional
 import uuid
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import router
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 app = FastAPI()
 
@@ -17,6 +19,7 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix="/api")
+
 
 active_tokens = set()
 
@@ -34,6 +37,12 @@ class MTXAuthRequest(BaseModel):
     protocol: Optional[str] = None
     id: Optional[str] = None       
     query: Optional[str] = None
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse("static/favicon.ico")
 
 @app.post("/login")
 async def login(req: LoginRequest):
