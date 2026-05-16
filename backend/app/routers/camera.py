@@ -8,3 +8,8 @@ router = APIRouter(prefix="/cameras")
 async def read_cameras():
     response = get_cameras() 
     return response.data
+
+@router.post("/")
+async def add_camera(camera: CameraCreate):
+    response = create_camera(camera.name, camera.rtsp)
+    return response.data

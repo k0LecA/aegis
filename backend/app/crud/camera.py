@@ -4,6 +4,11 @@ from app.core.database import supabase
 def get_cameras():
     return supabase.table("cameras").select("*").execute()
 
-def create_camera():
+def create_camera(name: str, rtsp: str):
+    camera_data = {
+        "name": name,
+        "rtsp": rtsp,
+        "status": "offline"
+    }
     return supabase.table("cameras").insert(camera_data).execute()
 

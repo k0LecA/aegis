@@ -9,11 +9,12 @@ interface Camera {
 }
 
 // Initial demo cameras
-const cameras = ref<Camera[]>([
-  { id: '1', name: 'ENTRY_NORTH', rtsp: 'rtsp://192.168.1.101:554/live', status: 'online' },
-  { id: '2', name: 'CARGO_BAY', rtsp: 'rtsp://192.168.1.102:554/live', status: 'online' },
-  { id: '3', name: 'PERIMETER_W', rtsp: 'rtsp://192.168.1.103:554/live', status: 'warning' },
-])
+const cameras = ref<Camera[]>([])
+
+onMounted(async () => {
+  const res = await fetch('/api/cameras')
+  cameras.value = await res.json()
+})
 
 const isModalOpen = ref(false)
 const activeMenuId = ref<string | null>(null)
@@ -46,32 +47,45 @@ const toggleMenu = (event: Event, id: string) => {
   activeMenuId.value = activeMenuId.value === id ? null : id
 }
 
-const deleteCamera = (id: string) => {
+const deleteCamera = async (id: string) => {
+  await fetch(`/api/cameras/${id}`, { method: 'DELETE' })
   cameras.value = cameras.value.filter(c => c.id !== id)
   activeMenuId.value = null
 }
 
-const saveCamera = () => {
-  if (newCamera.value.name && newCamera.value.rtsp) {
-    if (editingCameraId.value) {
-      const index = cameras.value.findIndex(c => c.id === editingCameraId.value)
-      if (index !== -1) {
-        cameras.value[index] = {
-          ...cameras.value[index],
-          name: newCamera.value.name.toUpperCase(),
-          rtsp: newCamera.value.rtsp
-        }
-      }
-    } else {
-      cameras.value.push({
-        id: Date.now().toString(),
+const saveCamera = async () => {
+  if (!newCamera.value.name || !newCamera.value.rtsp) return
+
+  if (editingCameraId.value) {
+    await fetch(`/api/cameras/${editingCameraId.value}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         name: newCamera.value.name.toUpperCase(),
-        rtsp: newCamera.value.rtsp,
-        status: 'offline' // New nodes default to offline/syncing
+        rtsp: newCamera.value.rtsp
       })
-    }
+    })
+  } else {
+    const res = await fetch('/api/cameras', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: newCamera.value.name.toUpperCase(),
+        rtsp: newCamera.value.rtsp
+      })
+    })
+    const created = await res.json()
+    cameras.value.push(created) // используем id от сервера
     closeModal()
+    return
   }
+
+  // обновляем локально для edit
+  const index = cameras.value.findIndex(c => c.id === editingCameraId.value)
+  if (index !== -1) {
+    cameras.value[index] = { ...cameras.value[index], name: newCamera.value.name.toUpperCase(), rtsp: newCamera.value.rtsp }
+  }
+  closeModal()
 }
 
 // Close menus on click outside
