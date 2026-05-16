@@ -11,5 +11,5 @@ async def read_cameras():
 
 @router.post("/")
 async def add_camera(camera: CameraCreate):
-    response = create_camera(camera.name, camera.rtsp)
+    response = create_camera(camera.name, camera.rtsp_url)
     return response.data

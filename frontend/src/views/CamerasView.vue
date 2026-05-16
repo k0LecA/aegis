@@ -4,7 +4,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 interface Camera {
   id: string
   name: string
-  rtsp: string
+  rtsp_url: string
   status: 'online' | 'offline' | 'warning'
 }
 
@@ -22,16 +22,16 @@ const editingCameraId = ref<string | null>(null)
 
 const newCamera = ref({
   name: '',
-  rtsp: ''
+  rtsp_url: ''
 })
 
 const openModal = (camera?: Camera) => {
   if (camera) {
     editingCameraId.value = camera.id
-    newCamera.value = { name: camera.name, rtsp: camera.rtsp }
+    newCamera.value = { name: camera.name, rtsp_url: camera.rtsp_url }
   } else {
     editingCameraId.value = null
-    newCamera.value = { name: '', rtsp: '' }
+    newCamera.value = { name: '', rtsp_url: '' }
   }
   isModalOpen.value = true
   activeMenuId.value = null
@@ -54,7 +54,7 @@ const deleteCamera = async (id: string) => {
 }
 
 const saveCamera = async () => {
-  if (!newCamera.value.name || !newCamera.value.rtsp) return
+  if (!newCamera.value.name || !newCamera.value.rtsp_url) return
 
   if (editingCameraId.value) {
     await fetch(`/api/cameras/${editingCameraId.value}`, {
@@ -62,7 +62,7 @@ const saveCamera = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: newCamera.value.name.toUpperCase(),
-        rtsp: newCamera.value.rtsp
+        rtsp_url: newCamera.value.rtsp_url
       })
     })
   } else {
@@ -71,7 +71,7 @@ const saveCamera = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: newCamera.value.name.toUpperCase(),
-        rtsp: newCamera.value.rtsp
+        rtsp_url: newCamera.value.rtsp_url
       })
     })
     const created = await res.json()
@@ -83,7 +83,7 @@ const saveCamera = async () => {
   // обновляем локально для edit
   const index = cameras.value.findIndex(c => c.id === editingCameraId.value)
   if (index !== -1) {
-    cameras.value[index] = { ...cameras.value[index], name: newCamera.value.name.toUpperCase(), rtsp: newCamera.value.rtsp }
+    cameras.value[index] = { ...cameras.value[index], name: newCamera.value.name.toUpperCase(), rtsp_url: newCamera.value.rtsp_url }
   }
   closeModal()
 }
@@ -200,7 +200,7 @@ onUnmounted(() => {
               </Transition>
             </div>
           </div>
-          <p class="text-[9px] font-terminal text-[var(--s-dim)] truncate">{{ camera.rtsp }}</p>
+          <p class="text-[9px] font-terminal text-[var(--s-dim)] truncate">{{ camera.rtsp_url }}</p>
         </div>
       </div>
 
@@ -255,7 +255,7 @@ onUnmounted(() => {
             <div class="space-y-2">
               <label class="block text-[9px] font-terminal text-[var(--s-mid)] uppercase tracking-widest">RTSP Stream Address</label>
               <input 
-                v-model="newCamera.rtsp"
+                v-model="newCamera.rtsp_url"
                 type="text" 
                 placeholder="rtsp://admin:pass@192.168.1.XX:554/live"
                 class="w-full bg-[var(--s-bg)] border border-[var(--s-line)] p-3 text-[var(--s-white)] font-terminal text-sm focus:outline-none focus:border-[var(--s-mid)] placeholder:text-[var(--s-dim)]"
