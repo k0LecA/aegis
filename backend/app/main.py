@@ -6,8 +6,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import router
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from app.core.mediamtx import mediamtx_manager
 
 app = FastAPI()
+
+@app.on_event("startup")
+async def startup_event():
+    mediamtx_manager.start()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    mediamtx_manager.stop()
 
 
 app.add_middleware(

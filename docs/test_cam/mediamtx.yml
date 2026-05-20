@@ -1,0 +1,8 @@
+record: yes
+recordFormat: fmp4
+recordPath: ./recordings/%v_%Y-%m-%d_%H-%M-%S_%f
+recordSegmentDuration: 1h
+
+paths:
+  cam:
+    source: rtsp://admin:password@192.168.1.50:554/Streaming/Channels/101
