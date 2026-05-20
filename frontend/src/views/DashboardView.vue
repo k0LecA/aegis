@@ -2,40 +2,45 @@
 import { ref, computed, onMounted } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import StatCard   from '@/components/ui/StatCard.vue'
-import { useTime }   from '@/composables/useTime'
+import { useTime }      from '@/composables/useTime'
 import { getStreamUrl } from '@/composables/useFormat'
-import { fetchCameras, fetchAlerts, fetchRecordings } from '@/api'
-import type { Camera, Alert, Recording } from '@/types'
+import { useCameraStore }  from '@/stores/cameras'
+import { useAlertStore }   from '@/stores/alerts'
+import { useRecordingStore } from '@/stores/recordings'
 
 const { currentTime } = useTime()
 
-const cameras    = ref<Camera[]>([])
-const alerts     = ref<Alert[]>([])
-const recordings = ref<Recording[]>([])
-const isLoading  = ref(true)
+const cameraStore    = useCameraStore()
+const alertStore     = useAlertStore()
+const recordingStore = useRecordingStore()
 
-const selectedCameraId = ref('')
+// Load all three in parallel — skips if already cached
+onMounted(() => Promise.all([
+  cameraStore.load(),
+  alertStore.load(),
+  recordingStore.load(),
+]))
 
-onMounted(async () => {
-  try {
-    [cameras.value, alerts.value, recordings.value] = await Promise.all([
-      fetchCameras(),
-      fetchAlerts(),
-      fetchRecordings(),
-    ])
-    if (cameras.value.length > 0) {
-      selectedCameraId.value = cameras.value[0].id
-    }
-  } catch (err) {
-    console.error('Dashboard load error:', err)
-  } finally {
-    isLoading.value = false
+const isLoading = computed(() =>
+  cameraStore.loading || alertStore.loading || recordingStore.loading
+)
+
+const selectedCameraId = ref(cameraStore.cameras[0]?.id ?? '')
+
+// Keep default selection in sync when cameras first arrive
+const unwatchCameras = cameraStore.$subscribe(() => {
+  if (!selectedCameraId.value && cameraStore.cameras.length > 0) {
+    selectedCameraId.value = cameraStore.cameras[0].id
+    unwatchCameras()
   }
 })
 
-const activeAlertsCount = computed(() => alerts.value.filter(a => !a.resolved).length)
-const selectedCamera    = computed(() => cameras.value.find(c => c.id === selectedCameraId.value))
-const streamUrl         = computed(() => selectedCamera.value ? getStreamUrl(selectedCamera.value.name) : '')
+const selectedCamera = computed(() =>
+  cameraStore.cameras.find(c => c.id === selectedCameraId.value)
+)
+const streamUrl = computed(() =>
+  selectedCamera.value ? getStreamUrl(selectedCamera.value.name) : ''
+)
 </script>
 
 <template>
@@ -48,12 +53,7 @@ const streamUrl         = computed(() => selectedCamera.value ? getStreamUrl(sel
 
     <!-- Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-      <StatCard
-        label="Active Camera Nodes"
-        :value="isLoading ? '...' : cameras.length"
-        status="ok"
-        status-text="SYNCED"
-      >
+      <StatCard label="Active Camera Nodes" :value="isLoading ? '...' : cameraStore.cameras.length" status="ok" status-text="SYNCED">
         <template #icon>
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--s-white)]">
             <path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
@@ -63,9 +63,9 @@ const streamUrl         = computed(() => selectedCamera.value ? getStreamUrl(sel
 
       <StatCard
         label="Unresolved Incidents"
-        :value="isLoading ? '...' : activeAlertsCount"
-        :status="activeAlertsCount > 0 ? 'err' : 'neutral'"
-        :status-text="activeAlertsCount > 0 ? 'WARNING' : 'STABLE'"
+        :value="isLoading ? '...' : alertStore.unresolvedCount"
+        :status="alertStore.unresolvedCount > 0 ? 'err' : 'neutral'"
+        :status-text="alertStore.unresolvedCount > 0 ? 'WARNING' : 'STABLE'"
       >
         <template #icon>
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--s-white)]">
@@ -75,12 +75,7 @@ const streamUrl         = computed(() => selectedCamera.value ? getStreamUrl(sel
         </template>
       </StatCard>
 
-      <StatCard
-        label="Archived Segments"
-        :value="isLoading ? '...' : recordings.length"
-        status="neutral"
-        status-text="ACTIVE"
-      >
+      <StatCard label="Archived Segments" :value="isLoading ? '...' : recordingStore.recordings.length" status="neutral" status-text="ACTIVE">
         <template #icon>
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--s-white)]">
             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
@@ -99,43 +94,34 @@ const streamUrl         = computed(() => selectedCamera.value ? getStreamUrl(sel
             Surveillance Feeds // Primary Viewport
           </h3>
         </div>
-
         <div class="flex items-center gap-3">
           <label class="text-[9px] font-terminal text-[var(--s-mid)] uppercase tracking-widest">Select Node:</label>
           <select
             v-model="selectedCameraId"
             class="bg-[var(--s-bg)] border border-[var(--s-line)] px-3 py-2 text-xs font-terminal text-[var(--s-white)] focus:outline-none focus:border-[var(--s-mid)] cursor-pointer appearance-none"
           >
-            <option v-for="cam in cameras" :key="cam.id" :value="cam.id">{{ cam.name.toUpperCase() }}</option>
-            <option v-if="cameras.length === 0" value="">NO CONFIGURED FEEDS</option>
+            <option v-for="cam in cameraStore.cameras" :key="cam.id" :value="cam.id">{{ cam.name.toUpperCase() }}</option>
+            <option v-if="cameraStore.cameras.length === 0" value="">NO CONFIGURED FEEDS</option>
           </select>
         </div>
       </div>
 
-      <!-- Stream Viewport -->
       <div class="flex-1 bg-black border border-[var(--s-line)] flex items-center justify-center relative overflow-hidden min-h-[300px]">
         <iframe
-          v-if="cameras.length > 0 && selectedCameraId"
+          v-if="cameraStore.cameras.length > 0 && selectedCameraId"
           :src="streamUrl"
           class="w-full h-full absolute inset-0 border-none transition-all duration-300"
           allow="autoplay; fullscreen"
           style="filter: contrast(1.15) brightness(1.1) grayscale(0.5);"
         />
-
-        <!-- Empty state -->
         <div v-else class="text-center p-10 flex flex-col items-center justify-center">
           <span class="text-xs font-terminal text-[var(--s-dim)] uppercase tracking-widest animate-pulse mb-4">
             &gt; NO ACTIVE SURVEILLANCE STREAMS DEFINED
           </span>
-          <router-link
-            to="/cameras"
-            class="px-4 py-2 border border-[var(--s-line2)] bg-[var(--s-bg4)] hover:bg-[var(--s-bg3)] text-[10px] font-terminal text-[var(--s-white)] uppercase tracking-wider transition-colors"
-          >
+          <router-link to="/cameras" class="px-4 py-2 border border-[var(--s-line2)] bg-[var(--s-bg4)] hover:bg-[var(--s-bg3)] text-[10px] font-terminal text-[var(--s-white)] uppercase tracking-wider transition-colors">
             Configure Stream Nodes
           </router-link>
         </div>
-
-        <!-- Overlay -->
         <div v-if="selectedCamera" class="absolute bottom-4 left-4 right-4 bg-gradient-to-t from-black/80 to-transparent p-4 flex items-end justify-between pointer-events-none">
           <div>
             <span class="text-[10px] font-bold text-[var(--s-white)] font-terminal uppercase tracking-widest block">{{ selectedCamera.name }}</span>

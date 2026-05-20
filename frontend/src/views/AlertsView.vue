@@ -3,30 +3,24 @@ import { ref, computed, onMounted } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AlertItem  from '@/components/alerts/AlertItem.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
-import { fetchCameras, fetchAlerts, createAlert, resolveAlert } from '@/api'
-import type { Camera, Alert } from '@/types'
+import { useCameraStore } from '@/stores/cameras'
+import { useAlertStore }  from '@/stores/alerts'
 
-const cameras      = ref<Camera[]>([])
-const alerts       = ref<Alert[]>([])
-const cameraMap    = computed(() => Object.fromEntries(cameras.value.map(c => [c.id, c.name])))
-const isSimulating = ref(false)
+const cameraStore = useCameraStore()
+const alertStore  = useAlertStore()
 
-// Filter state
+onMounted(() => Promise.all([cameraStore.load(), alertStore.load()]))
+
+const cameraMap = computed(() =>
+  Object.fromEntries(cameraStore.cameras.map(c => [c.id, c.name]))
+)
+
 const selectedCameraId = ref<string>('ALL')
 const filterResolved   = ref<'ALL' | 'UNRESOLVED' | 'RESOLVED'>('UNRESOLVED')
-
-onMounted(async () => {
-  try {
-    [cameras.value, alerts.value] = await Promise.all([fetchCameras(), fetchAlerts()])
-  } catch (err) {
-    console.error('Alerts load error:', err)
-  }
-})
-
-const unresolvedCount = computed(() => alerts.value.filter(a => !a.resolved).length)
+const isSimulating     = ref(false)
 
 const filteredAlerts = computed(() =>
-  [...alerts.value]
+  [...alertStore.alerts]
     .sort((a, b) => new Date(b.triggered_at).getTime() - new Date(a.triggered_at).getTime())
     .filter(alert => {
       const matchCamera = selectedCameraId.value === 'ALL' || alert.camera_id === selectedCameraId.value
@@ -38,26 +32,12 @@ const filteredAlerts = computed(() =>
     })
 )
 
-async function handleResolve(id: string) {
-  try {
-    await resolveAlert(id)
-    const idx = alerts.value.findIndex(a => a.id === id)
-    if (idx !== -1) alerts.value[idx].resolved = true
-  } catch (err) {
-    console.error('Resolve alert error:', err)
-  }
-}
-
 async function simulateAlert() {
-  if (cameras.value.length === 0) return
+  if (cameraStore.cameras.length === 0) return
   isSimulating.value = true
   try {
-    const cam  = cameras.value[Math.floor(Math.random() * cameras.value.length)]
-    const type = Math.random() > 0.5 ? 'motion' : 'intruder'
-    const created = await createAlert({ camera_id: cam.id, type, resolved: false })
-    alerts.value.push(created)
-  } catch (err) {
-    console.error('Simulate alert error:', err)
+    const cam = cameraStore.cameras[Math.floor(Math.random() * cameraStore.cameras.length)]
+    await alertStore.simulate(cam.id)
   } finally {
     isSimulating.value = false
   }
@@ -68,11 +48,11 @@ async function simulateAlert() {
   <div class="flex-1 p-6 lg:p-10 bg-[var(--s-bg)] overflow-y-auto scrollbar-thin">
     <PageHeader
       title="Security Alert Dispatch"
-      :subtitle="`Intrusion Registry // Unresolved Threats: ${unresolvedCount}`"
+      :subtitle="`Intrusion Registry // Unresolved Threats: ${alertStore.unresolvedCount}`"
     >
       <button
         @click="simulateAlert"
-        :disabled="isSimulating || cameras.length === 0"
+        :disabled="isSimulating || cameraStore.cameras.length === 0"
         class="border border-[var(--s-line2)] bg-[var(--s-bg4)] hover:bg-[var(--s-bg3)] disabled:opacity-40 px-4 py-2.5 text-[9px] font-terminal text-[var(--s-white)] uppercase tracking-widest transition-colors cursor-pointer"
       >
         {{ isSimulating ? 'TRANSMITTING...' : 'Simulate Intrusion Alert' }}
@@ -88,7 +68,7 @@ async function simulateAlert() {
           class="bg-[var(--s-bg)] border border-[var(--s-line)] p-2 text-xs font-terminal text-[var(--s-white)] focus:outline-none focus:border-[var(--s-mid)] cursor-pointer"
         >
           <option value="ALL">ALL NODES</option>
-          <option v-for="cam in cameras" :key="cam.id" :value="cam.id">{{ cam.name }}</option>
+          <option v-for="cam in cameraStore.cameras" :key="cam.id" :value="cam.id">{{ cam.name }}</option>
         </select>
       </div>
 
@@ -117,12 +97,9 @@ async function simulateAlert() {
         :key="alert.id"
         :alert="alert"
         :camera-name="cameraMap[alert.camera_id]"
-        @resolve="handleResolve"
+        @resolve="alertStore.resolve"
       />
-      <EmptyState
-        v-if="filteredAlerts.length === 0"
-        message="INTRUSION LOG IS CLEAR // SECTOR SECURE"
-      />
+      <EmptyState v-if="filteredAlerts.length === 0" message="INTRUSION LOG IS CLEAR // SECTOR SECURE" />
     </div>
   </div>
 </template>

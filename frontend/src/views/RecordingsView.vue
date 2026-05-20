@@ -1,39 +1,22 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import PageHeader       from '@/components/ui/PageHeader.vue'
-import RecordingsTable  from '@/components/recordings/RecordingsTable.vue'
-import { fetchCameras, fetchRecordings, deleteRecording, getDownloadUrl } from '@/api'
-import type { Camera, Recording } from '@/types'
+import { onMounted } from 'vue'
+import PageHeader      from '@/components/ui/PageHeader.vue'
+import RecordingsTable from '@/components/recordings/RecordingsTable.vue'
+import { useCameraStore }    from '@/stores/cameras'
+import { useRecordingStore } from '@/stores/recordings'
 
-const cameras    = ref<Camera[]>([])
-const recordings = ref<Recording[]>([])
+const cameraStore    = useCameraStore()
+const recordingStore = useRecordingStore()
 
-onMounted(async () => {
-  try {
-    [cameras.value, recordings.value] = await Promise.all([
-      fetchCameras(),
-      fetchRecordings(),
-    ])
-  } catch (err) {
-    console.error('Recordings load error:', err)
-  }
-})
-
-async function handleDelete(id: string) {
-  await deleteRecording(id)
-  recordings.value = recordings.value.filter(r => r.id !== id)
-}
-
-function handleDownload(id: string) {
-  window.open(getDownloadUrl(id), '_blank')
-}
+// Both load-once — recordings fetch also triggers FS sync on backend
+onMounted(() => Promise.all([cameraStore.load(), recordingStore.load()]))
 </script>
 
 <template>
   <div class="flex-1 p-6 lg:p-10 bg-[var(--s-bg)] overflow-y-auto scrollbar-thin">
     <PageHeader
       title="Archived Segment Logs"
-      :subtitle="`Sector Archives // Total Segments: ${recordings.length}`"
+      :subtitle="`Sector Archives // Total Segments: ${recordingStore.recordings.length}`"
     >
       <div class="text-right hidden md:block">
         <span class="text-[9px] font-terminal text-[var(--s-dim)] block uppercase">Storage.Status</span>
@@ -42,10 +25,10 @@ function handleDownload(id: string) {
     </PageHeader>
 
     <RecordingsTable
-      :recordings="recordings"
-      :cameras="cameras"
-      @delete="handleDelete"
-      @download="handleDownload"
+      :recordings="recordingStore.recordings"
+      :cameras="cameraStore.cameras"
+      @delete="recordingStore.remove"
+      @download="recordingStore.download"
     />
   </div>
 </template>
