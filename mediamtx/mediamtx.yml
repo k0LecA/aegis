@@ -4,7 +4,5 @@ pathDefaults:
   recordPath: ./recordings/%path/%v_%Y-%m-%d_%H-%M-%S_%f
   recordSegmentDuration: 1h
 paths:
-  entrance:
-    source: rtsp://admin:prudas123@192.168.88.4:554/stream1
   test:
-    source: rtsp://127.0.0.1:8555/test
+    source: rtsp://localhost:8555/test
