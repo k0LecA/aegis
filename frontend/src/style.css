@@ -88,3 +88,9 @@ body {
   border-color: var(--s-line2);
   color: var(--s-white);
 }
+
+/* Shared thin scrollbar — apply to any scrollable container */
+.scrollbar-thin::-webkit-scrollbar { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: var(--s-bg); }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--s-line2); }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: var(--s-mid); }
