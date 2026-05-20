@@ -1,7 +1,8 @@
+pathDefaults:
+  record: true
+  recordFormat: fmp4
+  recordPath: ./recordings/%path/%v_%Y-%m-%d_%H-%M-%S_%f
+  recordSegmentDuration: 1h
 paths:
   entrance:
-    source: rtsp://admin:prudas123@192.168.88.7:554/stream1
-record: true
-recordFormat: fmp4
-recordPath: ./recordings/%v_%Y-%m-%d_%H-%M-%S_%f
-recordSegmentDuration: 1h
+    source: rtsp://admin:prudas123@192.168.88.4:554/stream1

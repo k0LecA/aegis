@@ -47,12 +47,25 @@ async def get_mediamtx_config():
         with open(config_path, "r") as f:
             data = yaml.safe_load(f) or {}
         
-        # Extract individual keys safely
+        path_defaults = data.get("pathDefaults", {})
+        if not isinstance(path_defaults, dict):
+            path_defaults = {}
+
+        # Extract values favoring pathDefaults first, then fallback to global (deprecated) keys, then hardcoded defaults
+        record_val = path_defaults.get("record", data.get("record", False))
+        format_val = path_defaults.get("recordFormat", data.get("recordFormat", "fmp4"))
+        path_val = path_defaults.get("recordPath", data.get("recordPath", "./recordings/%path/%v_%Y-%m-%d_%H-%M-%S_%f"))
+        duration_val = path_defaults.get("recordSegmentDuration", data.get("recordSegmentDuration", "1h"))
+        
+        # Ensure path_val has required %path placeholder
+        if "%path" not in str(path_val):
+            path_val = "./recordings/%path/%v_%Y-%m-%d_%H-%M-%S_%f"
+
         return {
-            "record": bool(data.get("record", False)),
-            "recordFormat": str(data.get("recordFormat", "fmp4")),
-            "recordPath": str(data.get("recordPath", "./recordings/%v_%Y-%m-%d_%H-%M-%S_%f")),
-            "recordSegmentDuration": str(data.get("recordSegmentDuration", "1h"))
+            "record": bool(record_val),
+            "recordFormat": str(format_val),
+            "recordPath": str(path_val),
+            "recordSegmentDuration": str(duration_val)
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to read config: {str(e)}")
@@ -60,6 +73,11 @@ async def get_mediamtx_config():
 @router.post("/mediamtx/config")
 async def save_mediamtx_config(req: ConfigSaveRequest):
     config_path = mediamtx_manager.config_path
+    
+    # Simple validation for MediaMTX recordPath constraint
+    if "%path" not in req.recordPath:
+        raise HTTPException(status_code=400, detail="Configuration Error: 'recordPath' template must contain the '%path' placeholder.")
+
     try:
         if os.path.exists(config_path):
             with open(config_path, "r") as f:
@@ -67,11 +85,21 @@ async def save_mediamtx_config(req: ConfigSaveRequest):
         else:
             data = {}
         
-        # Update designated fields
-        data["record"] = req.record
-        data["recordFormat"] = req.recordFormat
-        data["recordPath"] = req.recordPath
-        data["recordSegmentDuration"] = req.recordSegmentDuration
+        # Ensure pathDefaults is present and is a dict
+        if "pathDefaults" not in data or not isinstance(data["pathDefaults"], dict):
+            data["pathDefaults"] = {}
+        
+        # Update modernized pathDefaults keys
+        data["pathDefaults"]["record"] = req.record
+        data["pathDefaults"]["recordFormat"] = req.recordFormat
+        data["pathDefaults"]["recordPath"] = req.recordPath
+        data["pathDefaults"]["recordSegmentDuration"] = req.recordSegmentDuration
+        
+        # Remove deprecated root-level keys if they exist
+        data.pop("record", None)
+        data.pop("recordFormat", None)
+        data.pop("recordPath", None)
+        data.pop("recordSegmentDuration", None)
         
         with open(config_path, "w") as f:
             yaml.safe_dump(data, f, default_flow_style=False)

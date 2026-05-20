@@ -9,7 +9,7 @@ const saveSuccess = ref(false)
 // Individual configuration fields
 const recordEnabled = ref(false)
 const recordFormat = ref('fmp4')
-const recordPath = ref('./recordings/%v_%Y-%m-%d_%H-%M-%S_%f')
+const recordPath = ref('./recordings/%path/%v_%Y-%m-%d_%H-%M-%S_%f')
 const recordSegmentDuration = ref('1h')
 
 const logContainer = ref<HTMLDivElement | null>(null)
@@ -292,7 +292,7 @@ const scrollToBottom = () => {
               <input 
                 v-model="recordPath"
                 type="text"
-                placeholder="e.g. ./recordings/%v_%Y-%m-%d_%H-%M-%S_%f"
+                placeholder="e.g. ./recordings/%path/%v_%Y-%m-%d_%H-%M-%S_%f"
                 class="bg-black border border-[var(--s-line)] p-3 text-xs font-terminal text-[var(--s-white)] focus:outline-none focus:border-[var(--s-mid)]"
               />
             </div>
