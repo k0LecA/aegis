@@ -9,5 +9,10 @@ class CameraBase(BaseModel):
 class CameraCreate(CameraBase):
     pass
 
+class CameraUpdate(BaseModel):
+    name: Optional[str] = None
+    rtsp_url: Optional[str] = None
+    group_id: Optional[str] = None
+
 class CameraResponse(CameraBase):
     id: str

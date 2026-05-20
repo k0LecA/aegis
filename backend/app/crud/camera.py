@@ -11,3 +11,9 @@ def create_camera(name: str, rtsp_url: str):
     }
     return supabase.table("cameras").insert(camera_data).execute()
 
+def update_camera(camera_id: str, data: dict):
+    return supabase.table("cameras").update(data).eq("id", camera_id).execute()
+
+def delete_camera(camera_id: str):
+    return supabase.table("cameras").delete().eq("id", camera_id).execute()
+
