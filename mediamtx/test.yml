@@ -1,0 +1,29 @@
+###############################################
+# MediaMTX Server Instance #2 Configuration
+# 100% Isolated Protocol Stack (v1.18.2+)
+###############################################
+
+# --- Main Protocol TCP Ports ---
+rtspAddress: :8555        # Instance 1 uses :8554
+rtmpAddress: :1936        # Instance 1 uses :1935
+hlsAddress: :8880         # Instance 1 uses :8888
+webrtcAddress: :8890      # Instance 1 uses :8889
+srtAddress: :8891         # Instance 1 uses :8890
+
+# --- RTSP UDP Data Ports ---
+rtpAddress: :8010         # Instance 1 uses :8000
+rtcpAddress: :8011        # Instance 1 uses :8001
+
+# --- WebRTC Internal UDP Allocation (The Fix for :8189) ---
+webrtcLocalUDPAddress: :8191   # Move the WebRTC UDP bind off :8189
+
+# --- Modern WebRTC ICE Servers Array ---
+webrtcICEServers2:
+  - url: stun:127.0.0.1:8190
+
+# --- Automatic Stream Launching ---
+paths:
+  test:
+    # We drop "-c copy" and explicitly enforce browser-compatible H.264 parameters
+    runOnInit: ffmpeg -re -stream_loop -1 -i test.mp4 -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline -level 3.0 -bf 0 -c:a aac -f rtsp rtsp://localhost:8555/test
+    runOnInitRestart: yes

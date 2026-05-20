@@ -6,3 +6,5 @@ pathDefaults:
 paths:
   entrance:
     source: rtsp://admin:prudas123@192.168.88.4:554/stream1
+  test:
+    source: rtsp://127.0.0.1:8555/test

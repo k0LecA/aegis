@@ -15,6 +15,12 @@ onMounted(async () => {
   cameras.value = await res.json()
 })
 
+const getStreamUrl = (cameraName: string) => {
+  const cleanedName = cameraName.toLowerCase().replace(/[^a-z0-9 _-]/g, '').replace(/\s+/g, '_')
+  const token = localStorage.getItem('user-token') || ''
+  return `http://127.0.0.1:8889/${cleanedName}?user=${token}`
+}
+
 const isModalOpen = ref(false)
 const activeMenuId = ref<string | null>(null)
 const editingCameraId = ref<string | null>(null)
@@ -126,19 +132,17 @@ onUnmounted(() => {
         :key="camera.id"
         class="s-card group flex flex-col h-64 overflow-hidden"
       >
-        <!-- Feed Placeholder -->
-        <div class="flex-1 bg-black relative flex items-center justify-center border-b border-[var(--s-line)]">
-          <div class="absolute inset-0 opacity-10 pointer-events-none overflow-hidden">
-            <div class="w-full h-full bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.05)_3px)]"></div>
-          </div>
-          
-          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--s-dim)] group-hover:text-[var(--s-mid)] transition-colors">
-            <path d="M23 7l-7 5 7 5V7z"/>
-            <rect width="15" height="14" x="1" y="5" rx="0" ry="0"/>
-          </svg>
+        <!-- Feed Preview -->
+        <div class="flex-1 bg-black relative flex items-center justify-center border-b border-[var(--s-line)] overflow-hidden group">
+          <iframe 
+            :src="getStreamUrl(camera.name)"
+            class="w-full h-full border-none absolute inset-0 pointer-events-none transition-all duration-300"
+            allow="autoplay; fullscreen" 
+            style="filter: contrast(1.15) brightness(1.1) grayscale(0.5);"
+          ></iframe>
 
           <!-- Status Indicator -->
-          <div class="absolute top-3 left-3 flex items-center gap-2">
+          <div class="absolute top-3 left-3 flex items-center gap-2 z-10">
             <div 
               class="w-1.5 h-1.5" 
               :class="{
@@ -147,13 +151,13 @@ onUnmounted(() => {
                 'bg-[var(--s-err)]': camera.status === 'offline'
               }"
             ></div>
-            <span class="text-[9px] font-terminal text-[var(--s-mid)] uppercase tracking-widest bg-black/50 px-1">
-              {{ camera.status }}
+            <span class="text-[9px] font-terminal text-[var(--s-mid)] uppercase tracking-widest bg-black/75 px-1.5 py-0.5 border border-zinc-900">
+              {{ camera.status || 'online' }}
             </span>
           </div>
           
-          <div class="absolute bottom-2 right-3">
-             <span class="text-[8px] font-terminal text-[var(--s-dim)] uppercase">REC // AUTO</span>
+          <div class="absolute bottom-2 right-3 z-10">
+             <span class="text-[8px] font-terminal text-[var(--s-dim)] uppercase bg-black/75 px-1.5 py-0.5 border border-zinc-900">REC // AUTO</span>
           </div>
         </div>
 
