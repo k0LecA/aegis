@@ -1,8 +1,0 @@
-pathDefaults:
-  record: true
-  recordFormat: fmp4
-  recordPath: ./recordings/%path/%v_%Y-%m-%d_%H-%M-%S_%f
-  recordSegmentDuration: 1h
-paths:
-  test:
-    source: rtsp://localhost:8555/test
