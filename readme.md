@@ -37,25 +37,28 @@
 ## Project Structure
 
 ```text
-aegis-system/
+aegis/
 ├── backend/                # FastAPI Application
 │   ├── app/
-│   │   ├── api/            # API Endpoints (v1)
-│   │   ├── core/           # Security & Config
-│   │   ├── models/         # Database Schemas
-│   │   ├── services/       # Video Processing Logic
-│   │   └── main.py         # Entry point
-│   ├── migrations/         # Alembic DB Migrations
-│   └── requirements.txt
-├── frontend/               # Vue.js Application
+│   │   ├── core/           # Database Connection & MediaMTX Lifecycle Manager
+│   │   ├── crud/           # Database CRUD & Local File Sync Logic
+│   │   ├── routers/        # FastAPI API Endpoints (Cameras, recordings, alerts, services)
+│   │   ├── schemas/        # Pydantic Request/Response Models
+│   │   └── main.py         # Entrypoint & Auth Bridge Hook
+│   ├── static/             # Static Assets (favicon)
+│   ├── Pipfile             # Pipenv Configuration
+│   └── run.py              # Server Bootstrapper
+├── frontend/               # Vue 3 Frontend Application
 │   ├── src/
-│   │   ├── components/     # UI Kit & Player Components
-│   │   ├── stores/         # Pinia Global State
-│   │   └── views/          # Pages (Dashboard, Settings)
+│   │   ├── api/            # Centralized API Services
+│   │   ├── components/     # Reusable UI & Player Components
+│   │   ├── stores/         # Pinia Global State Modules
+│   │   ├── views/          # Views (Dashboard, Settings, Cameras, Services, Auth)
+│   │   └── main.ts         # Application Entrypoint
 │   └── package.json
-└── recordings/             # Camera recordings
-    ├── 2009-...-67.mp4
-    └── ...
+└── mediamtx/               # MediaMTX Server & Recording Storage
+    ├── recordings/         # Local MP4 Video Segment Storage
+    └── mediamtx.yml        # MediaMTX Configuration
 ```
 
 -----
