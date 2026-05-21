@@ -1,4 +1,5 @@
 import uuid
+import re
 from typing import Optional
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
@@ -46,19 +47,13 @@ async def login(req: LoginRequest):
 @router.post("/auth_check")
 async def auth_check(auth: MTXAuthRequest):
     """MediaMTX external authentication hook."""
-    print("--- MediaMTX Authentication Request ---")
-    print(f"Payload: {auth.dict()}")
-    
-    # Extract and clean token from query string (e.g. ?token=...) or raw query
+    # Safely extract any standard UUID present in the query parameters
     query_str = auth.query.strip() if auth.query else ""
-    incoming_token = query_str[6:] if query_str.startswith("token=") else (query_str[5:] if query_str.startswith("?token=") else query_str)
-    
-    print(f"Extracted token: '{incoming_token}'")
-    print(f"Active tokens database: {active_tokens}")
+    uuid_match = re.search(r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})", query_str, re.IGNORECASE)
+    incoming_token = uuid_match.group(1) if uuid_match else query_str
 
     if incoming_token in active_tokens:
-        print("Result: SUCCESS")
         return {"status": "ok"}
     
-    print("Result: FAILED - Token unauthorized or expired")
+    print(f"[AUTH WARNING] Unauthorized access attempt: token='{incoming_token}', IP={auth.ip}, path={auth.path}")
     raise HTTPException(status_code=403, detail="Unauthorized")

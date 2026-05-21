@@ -119,6 +119,10 @@ class MediaMTXManager:
                     new_paths[cleaned_name] = {"source": url}
 
             config_data["paths"] = new_paths
+            
+            # Enforce HTTP authentication configurations
+            config_data["authMethod"] = "http"
+            config_data["authHTTPAddress"] = "http://localhost:8000/auth_check"
 
             # Write the updated configuration back to the yml file
             with open(self.config_path, "w") as f:

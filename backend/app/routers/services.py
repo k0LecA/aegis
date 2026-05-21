@@ -118,6 +118,10 @@ async def save_mediamtx_config(req: ConfigSaveRequest):
         # Purge deprecated legacy root-level keys
         for key in ["record", "recordFormat", "recordPath", "recordSegmentDuration"]:
             data.pop(key, None)
+            
+        # Enforce HTTP authentication configurations
+        data["authMethod"] = "http"
+        data["authHTTPAddress"] = "http://localhost:8000/auth_check"
         
         with open(config_path, "w") as f:
             yaml.safe_dump(data, f, default_flow_style=False)
