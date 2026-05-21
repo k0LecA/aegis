@@ -1,7 +1,7 @@
 import os
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
-from app.schemas.recording import RecordingCreate, RecordingUpdate
+from app.schemas.recording import RecordingCreate
 from app.crud.recording import get_recordings, get_recording, create_recording, delete_recording
 
 router = APIRouter(prefix="/recordings")

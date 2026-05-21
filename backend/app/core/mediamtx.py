@@ -1,11 +1,13 @@
 import os
 import subprocess
 import threading
-import yaml
 from collections import deque
+import yaml
 from app.core.database import supabase
 
 class MediaMTXManager:
+    """Manages the lifecycle of the MediaMTX media server subprocess."""
+    
     def __init__(self):
         self.process = None
         self.log_buffer = deque(maxlen=500)
@@ -13,7 +15,12 @@ class MediaMTXManager:
         self._thread = None
         self.log_buffer.append("[SYSTEM] MediaMTX Manager Initialized.\n")
 
-    def start(self):
+    def is_running(self) -> bool:
+        """Check if the MediaMTX process is currently active."""
+        return self.process is not None and self.process.poll() is None
+
+    def start(self) -> dict:
+        """Sync camera configurations and start the MediaMTX subprocess."""
         if self.is_running():
             return {"status": "already_running"}
 
@@ -31,22 +38,24 @@ class MediaMTXManager:
                 bufsize=1
             )
 
-            # Start background thread to capture stdout/stderr logs
+            # Start background thread to capture logs asynchronously
             self._thread = threading.Thread(target=self._read_logs, daemon=True)
             self._thread.start()
 
             self.log_buffer.append("[SYSTEM] MediaMTX Subprocess Launched.\n")
             return {"status": "started"}
+            
         except FileNotFoundError:
-            error_msg = "MediaMTX executable not found in system PATH."
-            self.log_buffer.append(f"[SYSTEM ERROR] {error_msg}\n")
-            return {"status": "error", "message": error_msg}
+            err = "MediaMTX executable not found in system PATH."
+            self.log_buffer.append(f"[SYSTEM ERROR] {err}\n")
+            return {"status": "error", "message": err}
         except Exception as e:
-            error_msg = f"Failed to start MediaMTX: {str(e)}"
-            self.log_buffer.append(f"[SYSTEM ERROR] {error_msg}\n")
-            return {"status": "error", "message": error_msg}
+            err = f"Failed to start MediaMTX: {str(e)}"
+            self.log_buffer.append(f"[SYSTEM ERROR] {err}\n")
+            return {"status": "error", "message": err}
 
-    def stop(self):
+    def stop(self) -> dict:
+        """Safely terminate the MediaMTX subprocess."""
         if not self.is_running():
             return {"status": "already_stopped"}
 
@@ -56,7 +65,7 @@ class MediaMTXManager:
             try:
                 self.process.wait(timeout=3)
             except subprocess.TimeoutExpired:
-                self.log_buffer.append("[SYSTEM WARNING] Subprocess failed to terminate, killing...\n")
+                self.log_buffer.append("[SYSTEM WARNING] Subprocess did not terminate; killing...\n")
                 self.process.kill()
                 self.process.wait()
         except Exception as e:
@@ -66,17 +75,17 @@ class MediaMTXManager:
         self.log_buffer.append("[SYSTEM] MediaMTX Subprocess Stopped.\n")
         return {"status": "stopped"}
 
-    def restart(self):
+    def restart(self) -> dict:
+        """Restart the MediaMTX subprocess."""
         self.stop()
         return self.start()
 
-    def is_running(self) -> bool:
-        return self.process is not None and self.process.poll() is None
-
     def get_logs(self) -> list[str]:
+        """Get the accumulated logs from the MediaMTX subprocess buffer."""
         return list(self.log_buffer)
 
     def _read_logs(self):
+        """Asynchronously read lines from the subprocess's stdout and append them to log_buffer."""
         while self.is_running():
             try:
                 line = self.process.stdout.readline()
@@ -87,35 +96,35 @@ class MediaMTXManager:
                 break
 
     def sync_cameras(self):
+        """Fetch active camera feeds from Supabase and synchronize them with mediamtx.yml."""
         try:
-            # Fetch active cameras from Supabase
             res = supabase.table("cameras").select("*").execute()
-            cameras_list = res.data if res.data else []
+            cameras = res.data if res.data else []
 
-            # Read current config using PyYAML
+            # Read the current mediamtx configuration file
             if os.path.exists(self.config_path):
                 with open(self.config_path, "r") as f:
-                    data = yaml.safe_load(f) or {}
+                    config_data = yaml.safe_load(f) or {}
             else:
-                data = {}
+                config_data = {}
 
-            # Construct new paths dictionary
+            # Construct the paths block for MediaMTX configuration
             new_paths = {}
-            for cam in cameras_list:
+            for cam in cameras:
                 name = cam.get("name", "")
                 url = cam.get("rtsp_url", "")
                 if name and url:
-                    # Form a valid lowercase underscore identifier
+                    # Generate a clean, lowercase, alphanumeric identifier
                     cleaned_name = "".join(c for c in name.lower() if c.isalnum() or c in (" ", "_", "-")).replace(" ", "_")
                     new_paths[cleaned_name] = {"source": url}
 
-            data["paths"] = new_paths
+            config_data["paths"] = new_paths
 
-            # Write back config using PyYAML
+            # Write the updated configuration back to the yml file
             with open(self.config_path, "w") as f:
-                yaml.safe_dump(data, f, default_flow_style=False)
+                yaml.safe_dump(config_data, f, default_flow_style=False)
 
-            self.log_buffer.append("[SYSTEM] Camera streams synced to config paths successfully via PyYAML.\n")
+            self.log_buffer.append("[SYSTEM] Camera streams synced to mediamtx.yml successfully.\n")
         except Exception as e:
             self.log_buffer.append(f"[SYSTEM ERROR] Failed to sync camera streams: {str(e)}\n")
 
