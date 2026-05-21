@@ -6,6 +6,17 @@ from app.core.mediamtx import mediamtx_manager
 
 router = APIRouter(prefix="/services")
 
+@router.on_event("startup")
+async def startup_event():
+    """Start the MediaMTX subprocess on application startup."""
+    mediamtx_manager.start()
+
+
+@router.on_event("shutdown")
+async def shutdown_event():
+    """Stop the MediaMTX subprocess on application shutdown."""
+    mediamtx_manager.stop()
+
 class ConfigSaveRequest(BaseModel):
     record: bool
     recordFormat: str
