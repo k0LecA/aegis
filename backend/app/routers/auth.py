@@ -1,7 +1,7 @@
 import uuid
 import re
 from typing import Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header, Depends
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
@@ -25,6 +25,18 @@ class MTXAuthRequest(BaseModel):
     protocol: Optional[str] = None
     id: Optional[str] = None       
     query: Optional[str] = None
+
+
+async def verify_token(authorization: Optional[str] = Header(None)):
+    """Dependency to authorize requests using the active bridge token cache."""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header missing.")
+    
+    # Support standard 'Bearer <token>' or raw '<token>'
+    token = authorization.replace("Bearer ", "").strip()
+    if token not in active_tokens:
+        raise HTTPException(status_code=401, detail="Invalid or expired authorization token.")
+    return token
 
 
 @router.get("/favicon.ico", include_in_schema=False)

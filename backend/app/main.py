@@ -1,9 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.routers import router
-from app.routers.auth import router as auth_router
+from app.routers.auth import router as auth_router, verify_token
 
 app = FastAPI(title="AEGIS API", description="Automated Enclosure Guardian & Interactive System")
 
@@ -17,8 +17,8 @@ app.add_middleware(
 )
 
 # Application Routes
-app.include_router(router, prefix="/api")  # Core Aegis services and entities
-app.include_router(auth_router)             # Security and media server auth hooks
+app.include_router(router, prefix="/api", dependencies=[Depends(verify_token)])  # Secure database and camera configurations
+app.include_router(auth_router)                                                 # Public auth interfaces and hooks
 
 # Static files mount
 app.mount("/static", StaticFiles(directory="static"), name="static")
